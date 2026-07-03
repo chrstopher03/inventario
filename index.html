@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Inventario - Burguer House</title>
+
+<link rel="icon" href="logo.jpeg">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff9800">
+
+<!-- iOS soporte -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="apple-touch-icon" href="logo.jpeg">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+body{background:#0b0b0b;color:#fff;padding:20px;padding-bottom:80px;}
+
+header{background:#111;padding:20px;border-radius:18px;display:flex;justify-content:center;align-items:center;margin-bottom:25px;}
+
+.logo{display:flex;align-items:center;gap:20px;}
+.logo img{width:80px;height:80px;border-radius:50%;border:4px solid #ff9800;}
+
+.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:25px;}
+
+.card{background:#171717;padding:25px;border-radius:18px;text-align:center;}
+
+.panel{background:#151515;padding:25px;margin-bottom:25px;border-radius:18px;overflow-x:auto;}
+
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:20px;}
+
+input{padding:14px;border:none;border-radius:12px;background:#222;color:#fff;}
+
+button{background:#ff9800;border:none;border-radius:12px;font-weight:700;cursor:pointer;padding:14px;}
+
+table{width:100%;border-collapse:collapse;}
+
+thead{background:#ff9800;color:#000;}
+
+th,td{padding:12px;text-align:center;border-bottom:1px solid #333;}
+
+canvas{background:#fff;border-radius:15px;padding:10px;}
+
+.pendiente{background:#e53935;padding:6px 12px;border-radius:20px}
+.cancelado{background:#43a047;padding:6px 12px;border-radius:20px}
+
+/* TOAST */
+#toast{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#222;
+color:#fff;
+padding:12px 18px;
+border-radius:12px;
+opacity:0;
+transform:translateY(20px);
+transition:.3s;
+z-index:9999;
+}
+#toast.show{
+opacity:1;
+transform:translateY(0);
+}
+table{
+width:100%;
+border-collapse:collapse;
+border-radius:12px;
+overflow:hidden;
+background:#111;
+}
+
+thead{
+background:#ff9800;
+color:#000;
+font-weight:700;
+}
+
+th,td{
+padding:12px;
+text-align:center;
+border-bottom:1px solid #222;
+font-size:14px;
+}
+
+tbody tr:hover{
+background:#1c1c1c;
+}
+
+button{
+padding:8px 10px;
+border-radius:8px;
+font-size:13px;
+}
+
+.pendiente{
+background:#e53935;
+padding:5px 10px;
+border-radius:12px;
+font-size:12px;
+}
+
+.cancelado{
+background:#43a047;
+padding:5px 10px;
+border-radius:12px;
+font-size:12px;
+}
+
+/* ================= RESPONSIVE FIX ================= */
+
+/* evita desbordes en móvil */
+body{
+  overflow-x:hidden;
+}
+
+/* header más compacto en móvil */
+@media (max-width: 600px){
+  header{
+    flex-direction:column;
+    text-align:center;
+    padding:15px;
+  }
+
+  .logo{
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .logo img{
+    width:65px;
+    height:65px;
+  }
+
+  h2{
+    font-size:18px;
+  }
+
+  p{
+    font-size:13px;
+  }
+}
+
+/* dashboard en móvil */
+@media (max-width: 600px){
+  .dashboard{
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .card{
+    padding:15px;
+  }
+
+  .card h3{
+    font-size:16px;
+  }
+
+  .card p{
+    font-size:12px;
+  }
+}
+
+/* formularios en móvil */
+@media (max-width: 600px){
+  .form{
+    grid-template-columns:1fr;
+  }
+
+  input, button{
+    width:100%;
+    font-size:14px;
+  }
+
+  button{
+    padding:12px;
+  }
+}
+
+/* TABLAS RESPONSIVE REAL */
+@media (max-width: 600px){
+  table{
+    display:block;
+    overflow-x:auto;
+    white-space:nowrap;
+    font-size:13px;
+  }
+
+  th, td{
+    padding:10px;
+  }
+}
+
+/* botones más cómodos en móvil */
+@media (max-width: 600px){
+  td button{
+    padding:6px 8px;
+    font-size:12px;
+  }
+}
+
+/* panel más compacto */
+@media (max-width: 600px){
+  .panel{
+    padding:15px;
+  }
+
+  h2{
+    font-size:16px;
+  }
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="toast"></div>
+
+<header>
+<div class="logo">
+<img src="logo.jpeg">
+<div>
+<h2>Burguer House</h2>
+<p>Sistema de Inventario</p>
+</div>
+</div>
+</header>
+
+<!-- DASHBOARD -->
+<div class="dashboard">
+<div class="card"><h3 id="ventasHoy">C$0</h3><p>Ventas Hoy</p></div>
+<div class="card"><h3 id="productosVendidos">0</h3><p>Productos</p></div>
+<div class="card"><h3 id="stockTotal">0</h3><p>Stock</p></div>
+<div class="card"><h3 id="fiadosPendientes">C$0</h3><p>Deudas</p></div>
+</div>
+<!-- VENTAS -->
+<section class="panel">
+<h2>Registrar Venta</h2>
+<div class="form">
+<input id="producto" placeholder="Producto">
+<input id="precio" type="number" placeholder="Precio">
+<input id="cantidad" type="number" placeholder="Cantidad">
+
+<!-- Teléfono -->
+<input id="telefono" type="tel" placeholder="Número de teléfono">
+
+<!-- NUEVO: Dirección -->
+<input id="direccion" type="text" placeholder="Dirección del cliente">
+
+<button onclick="guardarVenta()">Guardar</button>
+</div>
+</section>
+<section class="panel">
+<h2>Filtrar Ventas por Día</h2>
+
+<div class="form">
+<input type="date" id="filtroFecha" onchange="filtrarVentas()">
+<button onclick="exportarExcel()">Descargar Excel</button>
+<button onclick="filtrarVentas()">Ver Todo</button>
+</div>
+
+<h3 id="totalDia">Total: C$0</h3>
+
+<table>
+<thead>
+<tr>
+<th>Fecha</th>
+<th>Producto</th>
+<th>Teléfono</th>
+<th>Dirección</th>
+<th>Cantidad</th>
+<th>Total</th>
+</tr>
+</thead>
+
+<tbody id="tablaFiltrada"></tbody>
+</table>
+</section>
+<!-- INVENTARIO -->
+<section class="panel">
+<h2>Inventario</h2>
+<div class="form">
+<input id="productoStock" placeholder="Producto">
+<input id="stock" type="number" placeholder="Cantidad">
+<button onclick="guardarStock()">Agregar</button>
+</div>
+
+<table>
+<thead><tr><th>Producto</th><th>Stock</th><th></th></tr></thead>
+<tbody id="tablaInventario"></tbody>
+</table>
+</section>
+
+<!-- FIADOS -->
+<section class="panel">
+<h2>Deudas</h2>
+<div class="form">
+<input id="clienteFiado" placeholder="Cliente">
+<input id="productoFiado" placeholder="Producto">
+<input id="montoFiado" type="number" placeholder="Monto">
+<input id="fechaPago" type="date">
+<button onclick="guardarFiado()">Guardar</button>
+</div>
+
+<table>
+<thead><tr><th>Cliente</th><th>Producto</th><th>Monto</th><th>Fecha</th></tr></thead>
+<tbody id="tablaFiados"></tbody>
+</table>
+</section>
+<!-- HISTORIAL -->
+<section class="panel">
+<h2>Historial de Ventas</h2>
+<table>
+<thead>
+<tr>
+<th>Fecha</th>
+<th>Producto</th>
+<th>Teléfono</th> <!-- 👈 NUEVO -->
+<th>Total</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody id="tablaVentas"></tbody>
+</table>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+let ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
+let inventario = JSON.parse(localStorage.getItem("inventario") || "[]");
+let fiados = JSON.parse(localStorage.getItem("fiados") || "[]");
+let contadorFactura = Number(localStorage.getItem("contadorFactura") || 1);
+
+/* ================= TOAST ================= */
+function toast(msg){
+const t=document.getElementById("toast");
+t.innerText=msg;
+t.classList.add("show");
+setTimeout(()=>t.classList.remove("show"),2000);
+}
+
+/* ================= FECHA ================= */
+function hoy(){
+return new Date().toISOString().slice(0,10);
+}
+
+/* ================= SAVE ================= */
+function save(){
+localStorage.setItem("ventas",JSON.stringify(ventas));
+localStorage.setItem("inventario",JSON.stringify(inventario));
+localStorage.setItem("fiados",JSON.stringify(fiados));
+localStorage.setItem("contadorFactura",contadorFactura);
+}
+
+/* ================= EXCEL ================= */
+function exportarExcel(){
+
+let fecha=document.getElementById("filtroFecha")?.value;
+
+let data = fecha ? ventas.filter(v=>v.fecha===fecha) : ventas;
+
+if(data.length===0){
+return toast("No hay datos");
+}
+
+let excelData=data.map(v=>({
+Fecha:v.fecha,
+Producto:v.producto,
+Telefono:v.telefono,
+Direccion:v.direccion,
+Cantidad:v.cantidad,
+Total:v.total
+}));
+
+let wb=XLSX.utils.book_new();
+let ws=XLSX.utils.json_to_sheet(excelData);
+
+XLSX.utils.book_append_sheet(wb,ws,"Ventas");
+XLSX.writeFile(wb, fecha ? `ventas-${fecha}.xlsx` : "ventas.xlsx");
+
+toast("Excel descargado ✔");
+}
+
+/* ================= FILTRO VENTAS ================= */
+function filtrarVentas(){
+
+let fecha=document.getElementById("filtroFecha").value;
+
+let data = fecha ? ventas.filter(v=>v.fecha===fecha) : ventas;
+
+let total=0;
+
+document.getElementById("tablaFiltrada").innerHTML=
+data.map(v=>{
+total+=v.total;
+
+return `
+<tr>
+<td>${v.fecha}</td>
+<td>${v.producto}</td>
+<td>${v.telefono||"-"}</td>
+<td>${v.direccion||"-"}</td>
+<td>${v.cantidad}</td>
+<td>C$${Number(v.total).toFixed(2)}</td>
+</tr>
+`;
+}).join("");
+
+document.getElementById("totalDia").innerText="Total: C$"+total.toFixed(2);
+}
+
+/* ================= INVENTARIO ================= */
+function guardarStock(){
+let p=document.getElementById("productoStock").value.trim();
+let s=Number(document.getElementById("stock").value);
+
+if(!p || isNaN(s) || s<=0) return toast("Datos inválidos");
+
+let ex=inventario.find(x=>x.producto.toLowerCase()===p.toLowerCase());
+
+if(ex) ex.stock+=s;
+else inventario.push({producto:p,stock:s});
+
+save();
+renderInventario();
+dashboard();
+toast("Stock agregado ✔");
+
+document.getElementById("productoStock").value="";
+document.getElementById("stock").value="";
+}
+
+function renderInventario(){
+document.getElementById("tablaInventario").innerHTML=
+inventario.map((p,i)=>`
+<tr>
+<td>${p.producto}</td>
+<td>${p.stock}</td>
+<td>
+<button onclick="editarStock(${i})">✏️</button>
+<button onclick="delStock(${i})">X</button>
+</td>
+</tr>
+`).join("");
+}
+
+function editarStock(i){
+let nuevo=prompt("Nuevo stock",inventario[i].stock);
+if(nuevo===null)return;
+nuevo=Number(nuevo);
+if(isNaN(nuevo)||nuevo<0) return toast("Inválido");
+
+inventario[i].stock=nuevo;
+save(); renderInventario(); dashboard();
+}
+
+function delStock(i){
+inventario.splice(i,1);
+save(); renderInventario(); dashboard();
+}
+
+/* ================= VENTA ================= */
+function guardarVenta(){
+
+let p=document.getElementById("producto").value.trim();
+let pr=Number(document.getElementById("precio").value);
+let c=Number(document.getElementById("cantidad").value);
+let tel=document.getElementById("telefono").value.trim();
+let dir=document.getElementById("direccion").value.trim();
+
+if(!p || isNaN(pr) || isNaN(c) || c<=0) return toast("Datos inválidos");
+if(!tel) return toast("Falta teléfono");
+if(!dir) return toast("Falta dirección");
+
+let stockItem=inventario.find(x=>x.producto.toLowerCase()===p.toLowerCase());
+
+if(!stockItem) return toast("No existe en inventario");
+if(stockItem.stock<c) return toast("Sin stock");
+
+stockItem.stock-=c;
+
+ventas.unshift({
+producto:p,
+precio:pr,
+cantidad:c,
+telefono:tel,
+direccion:dir,
+total:pr*c,
+fecha:hoy()
+});
+
+save();
+renderVentas();
+renderInventario();
+dashboard();
+filtrarVentas();
+toast("Venta guardada ✔");
+
+document.getElementById("producto").value="";
+document.getElementById("precio").value="";
+document.getElementById("cantidad").value="";
+document.getElementById("telefono").value="";
+document.getElementById("direccion").value="";
+}
+
+/* ================= VENTAS ================= */
+function renderVentas(){
+document.getElementById("tablaVentas").innerHTML=
+ventas.map((v,i)=>`
+<tr>
+<td>${v.fecha}</td>
+<td>${v.producto}</td>
+<td>${v.telefono||"-"}</td>
+<td>${v.direccion||"-"}</td>
+<td>${v.cantidad}</td>
+<td>C$${Number(v.total||0).toFixed(2)}</td>
+<td>
+<button onclick="factura(${i})">Factura</button>
+<button onclick="eliminarVenta(${i})">🗑️</button>
+</td>
+</tr>
+`).join("");
+}
+
+/* ================= ELIMINAR ================= */
+function eliminarVenta(i){
+let v=ventas[i];
+if(!confirm("¿Eliminar?"))return;
+
+let stockItem=inventario.find(x=>x.producto.toLowerCase()===v.producto.toLowerCase());
+if(stockItem) stockItem.stock+=v.cantidad;
+
+ventas.splice(i,1);
+
+save();
+renderVentas();
+renderInventario();
+dashboard();
+filtrarVentas();
+}
+/* ================= FACTURA MEJORADA ================= */
+async function factura(i){
+const { jsPDF } = window.jspdf;
+let v = ventas[i];
+
+let numeroFactura = "BH-" + String(contadorFactura).padStart(6,"0");
+contadorFactura++;
+save();
+
+let doc = new jsPDF({orientation:"p",unit:"mm",format:[80,160]});
+let y = 10;
+
+/* ================= LOGO CENTRADO ================= */
+let img = new Image();
+img.src = "logo.jpeg";
+
+try{
+await img.decode();
+doc.addImage(img, "JPEG", 25, 5, 30, 30);
+y = 40;
+}catch{
+y = 15;
+}
+
+/* ================= TÍTULO ================= */
+doc.setFont("helvetica","bold");
+doc.setFontSize(13);
+doc.text("BURGUER HOUSE", 40, y, {align:"center"});
+y += 6;
+
+doc.setFontSize(9);
+doc.setTextColor(120);
+doc.text("FACTURA DE VENTA", 40, y, {align:"center"});
+doc.setTextColor(0);
+y += 8;
+
+/* ================= LINEA ================= */
+doc.line(5, y, 75, y);
+y += 6;
+
+/* ================= DATOS ================= */
+doc.setFontSize(8);
+
+doc.text(`Factura: ${numeroFactura}`, 5, y); y += 5;
+doc.text(`Fecha: ${v.fecha}`, 5, y); y += 5;
+doc.text(`Tel: ${v.telefono}`, 5, y); y += 5;
+doc.text(`Dirección: ${v.direccion}`, 5, y); y += 5;
+
+doc.line(5, y, 75, y);
+y += 6;
+
+/* ================= PRODUCTO ================= */
+doc.setFont("helvetica","bold");
+doc.text("DETALLE:", 5, y); 
+y += 5;
+
+doc.setFont("helvetica","normal");
+doc.text(`${v.producto}`, 5, y); y += 5;
+doc.text(`Cantidad: ${v.cantidad}`, 5, y); y += 5;
+doc.text(`Precio: C$${v.precio}`, 5, y); y += 6;
+
+doc.line(5, y, 75, y);
+y += 8;
+
+/* ================= TOTAL DESTACADO ================= */
+doc.setFont("helvetica","bold");
+doc.setFontSize(11);
+doc.text(`TOTAL: C$${v.total.toFixed(2)}`, 40, y, {align:"center"});
+y += 10;
+
+/* ================= FOOTER ================= */
+doc.setFontSize(8);
+doc.setFont("helvetica","italic");
+doc.text("Gracias por su compra ", 40, y, {align:"center"});
+
+doc.save(`${numeroFactura}.pdf`);
+}
+/* ================= FIADOS ================= */
+function guardarFiado(){
+let proveedor=document.getElementById("clienteFiado").value.trim();
+let producto=document.getElementById("productoFiado").value.trim();
+let monto=Number(document.getElementById("montoFiado").value);
+let fecha=document.getElementById("fechaPago").value;
+
+if(!proveedor||!producto||isNaN(monto)||monto<=0)
+return toast("Datos inválidos");
+
+fiados.unshift({proveedor,producto,monto,fecha});
+save(); renderFiados(); dashboard();
+}
+
+function renderFiados(){
+document.getElementById("tablaFiados").innerHTML=
+fiados.map((f,i)=>`
+<tr>
+<td>${f.proveedor}</td>
+<td>${f.producto}</td>
+<td>C$${f.monto}</td>
+<td>${f.fecha||"-"}</td>
+<td><button onclick="pagarFiado(${i})">✔</button></td>
+</tr>
+`).join("");
+}
+
+function pagarFiado(i){
+fiados.splice(i,1);
+save(); renderFiados(); dashboard();
+}
+
+/* ================= DASHBOARD ================= */
+function dashboard(){
+let t=0,c=0;
+
+ventas.forEach(v=>{
+if(v.fecha===hoy()){
+t+=v.total;
+c+=v.cantidad;
+}
+});
+
+document.getElementById("ventasHoy").innerText="C$"+t.toFixed(2);
+document.getElementById("productosVendidos").innerText=c;
+
+document.getElementById("stockTotal").innerText=
+inventario.reduce((a,b)=>a+Number(b.stock||0),0);
+
+document.getElementById("fiadosPendientes").innerText=
+"C$"+fiados.reduce((a,b)=>a+Number(b.monto||0),0).toFixed(2);
+}
+
+/* ================= INIT ================= */
+function init(){
+renderInventario();
+renderVentas();
+renderFiados();
+dashboard();
+filtrarVentas();
+}
+init();
+
+let deferredPrompt;
+
+// ================= CREAR BOTÓN AUTOMÁTICO =================
+const installBtn = document.createElement("button");
+installBtn.innerHTML = "📲 Instalar App";
+installBtn.style.position = "fixed";
+installBtn.style.bottom = "20px";
+installBtn.style.left = "20px";
+installBtn.style.zIndex = "9999";
+installBtn.style.padding = "12px 16px";
+installBtn.style.borderRadius = "12px";
+installBtn.style.border = "none";
+installBtn.style.background = "#ff9800";
+installBtn.style.color = "#000";
+installBtn.style.fontWeight = "bold";
+installBtn.style.fontSize = "14px";
+installBtn.style.display = "none";
+installBtn.style.cursor = "pointer";
+document.body.appendChild(installBtn);
+
+// ================= DETECTAR INSTALACIÓN =================
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  // mostrar botón automáticamente
+  installBtn.style.display = "block";
+});
+
+// ================= CLICK INSTALAR =================
+installBtn.addEventListener("click", async () => {
+  installBtn.style.display = "none";
+
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+
+    const choice = await deferredPrompt.userChoice;
+
+    if (choice.outcome === "accepted") {
+      console.log("App instalada");
+    } else {
+      console.log("Usuario canceló");
+    }
+
+    deferredPrompt = null;
+  }
+});
+
+// ================= YA INSTALADA =================
+window.addEventListener("appinstalled", () => {
+  console.log("PWA instalada correctamente");
+  installBtn.remove();
+});
+
+// ================= SERVICE WORKER =================
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js")
+      .then((reg) => console.log("SW activo:", reg.scope))
+      .catch((err) => console.log("Error SW:", err));
+  });
+}
+</script>
+</body>
+</html>
