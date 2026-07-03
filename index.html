@@ -546,8 +546,7 @@ renderVentas();
 renderInventario();
 dashboard();
 filtrarVentas();
-}
-/* ================= FACTURA MEJORADA ================= */
+}/* ================= FACTURA MEJORADA ================= */
 async function factura(i){
 const { jsPDF } = window.jspdf;
 let v = ventas[i];
@@ -561,7 +560,7 @@ let y = 10;
 
 /* ================= LOGO CENTRADO ================= */
 let img = new Image();
-img.src = "logo.jpeg";
+img.src = "1.jpeg";
 
 try{
 await img.decode();
@@ -593,7 +592,11 @@ doc.setFontSize(8);
 doc.text(`Factura: ${numeroFactura}`, 5, y); y += 5;
 doc.text(`Fecha: ${v.fecha}`, 5, y); y += 5;
 doc.text(`Tel: ${v.telefono}`, 5, y); y += 5;
-doc.text(`Dirección: ${v.direccion}`, 5, y); y += 5;
+
+/* ================= DIRECCIÓN (CORREGIDA) ================= */
+let dir = doc.splitTextToSize(`Dirección: ${v.direccion}`, 70);
+doc.text(dir, 5, y);
+y += dir.length * 5 + 2;
 
 doc.line(5, y, 75, y);
 y += 6;
@@ -620,7 +623,7 @@ y += 10;
 /* ================= FOOTER ================= */
 doc.setFontSize(8);
 doc.setFont("helvetica","italic");
-doc.text("Gracias por su compra ", 40, y, {align:"center"});
+doc.text("Gracias por su compra", 40, y, {align:"center"});
 
 doc.save(`${numeroFactura}.pdf`);
 }
