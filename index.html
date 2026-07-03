@@ -36,8 +36,41 @@ header{background:#111;padding:20px;border-radius:18px;display:flex;justify-cont
 
 .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:20px;}
 
-input{padding:14px;border:none;border-radius:12px;background:#222;color:#fff;}
+input,
+select{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#222;
+    color:#fff;
+    font-size:15px;
+    outline:none;
+    transition:.3s;
+}
 
+input:focus,
+select:focus{
+    box-shadow:0 0 0 2px #ff9800;
+    background:#2a2a2a;
+}
+
+select{
+    cursor:pointer;
+    appearance:none;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='%23ff9800' viewBox='0 0 16 16'%3E%3Cpath d='M1.5 5.5 8 12l6.5-6.5z'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 15px center;
+    background-size:14px;
+    padding-right:40px;
+}
+
+select option{
+    background:#222;
+    color:#fff;
+}
 button{background:#ff9800;border:none;border-radius:12px;font-weight:700;cursor:pointer;padding:14px;}
 
 table{width:100%;border-collapse:collapse;}
@@ -242,21 +275,57 @@ body{
 <div class="card"><h3 id="fiadosPendientes">C$0</h3><p>Deudas</p></div>
 </div>
 <!-- VENTAS -->
+<section class="panel"><!-- VENTAS -->
 <section class="panel">
-<h2>Registrar Venta</h2>
-<div class="form">
-<input id="producto" placeholder="Producto">
-<input id="precio" type="number" placeholder="Precio">
-<input id="cantidad" type="number" placeholder="Cantidad">
+    <h2>Registrar Venta</h2>
 
-<!-- Teléfono -->
-<input id="telefono" type="tel" placeholder="Número de teléfono">
+    <div class="form">
 
-<!-- NUEVO: Dirección -->
-<input id="direccion" type="text" placeholder="Dirección del cliente">
+        <select id="producto">
+            <option value="">🍔 Producto</option>
+            <option value="Doble House">Doble House</option>
+            <option value="Club Sandwich">Club Sandwich</option>
+            <option value="Doble king">Doble king</option>
+            <option value="Monster House">Monster House</option>
+            <option value="Chesse Clasica">Chesse Clasica</option>
+            <option value="Club Burguer">Club Burguer</option>
+            <option value="Burrito XL">Burrito XL</option>
+            <option value="Carnívora (G)">Carnívora (G)</option>
+            <option value="Dedos de pollo">Dedos de pollo</option>
+            <option value="Salchipapa (G)">Salchipapa (G)</option>
+            <option value="Salchipapa (M)">Salchipapa (M)</option>
+            <option value="Salchipollo Crispy">Salchipollo Crispy</option>
 
-<button onclick="guardarVenta()">Guardar</button>
-</div>
+
+            <option value="Bandeja Expres">Bandeja Expres</option>
+            <option value="Bandeja House">Bandeja House</option>
+            <option value="Bandeja Mundialista">Bandeja Mundialista</option>
+            <option value="Bandeja Fest">Bandeja Fest</option>
+
+            <option value="El Híbrido">El Híbrido</option>
+            <option value="Tio Primo">Tio Primo</option>
+            <option value="Love and Thunder">Love and Thunder</option>
+            <option value="Combo House">Combo House</option>
+
+           
+            <option value="Combo Familiar">Combo Familiar</option>
+            <option value="Combo Shark">Combo Shark</option>
+            <option value="Combo X4">Combo X4</option>
+            <option value="Combo Dude Perfect">Combo Dude Perfect</option>
+
+            
+            <option value="Batido">Batido</option>
+            <option value="Coca Cola de la pequeña">Coca Cola de la pequeña</option>
+            <option value="Coca Cola de un 1LT">Coca Cola de un 1LT</option>
+            <option value="Agua Cielo fresa">Agua Cielo fresa</option>
+            <option value="Agua Cielo limon">Agua Cielo limon</option>
+            <option value="Agua Cielo Manzana">Agua Cielo Manzana</option>
+            
+        <button onclick="guardarVenta()">
+            <i class="fa-solid fa-cart-shopping"></i> Guardar Venta
+        </button>
+
+    </div>
 </section>
 <section class="panel">
 <h2>Filtrar Ventas por Día</h2>
@@ -331,9 +400,15 @@ body{
 
 <tbody id="tablaVentas"></tbody>
 </table>
-</section>
-<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</section><!-- ExcelJS -->
+<script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+
+<!-- FileSaver -->
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+<!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
 let ventas = JSON.parse(localStorage.getItem("ventas") || "[]");
 let inventario = JSON.parse(localStorage.getItem("inventario") || "[]");
@@ -359,37 +434,176 @@ localStorage.setItem("ventas",JSON.stringify(ventas));
 localStorage.setItem("inventario",JSON.stringify(inventario));
 localStorage.setItem("fiados",JSON.stringify(fiados));
 localStorage.setItem("contadorFactura",contadorFactura);
+}async function exportarExcel(){
+
+    let fecha = document.getElementById("filtroFecha")?.value;
+
+    let data = fecha ? ventas.filter(v => v.fecha === fecha) : ventas;
+
+    if(data.length === 0){
+        toast("No hay datos");
+        return;
+    }
+
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet("Ventas");
+
+    // Título
+    ws.mergeCells("A1:H1");
+    const titulo = ws.getCell("A1");
+    titulo.value = "BURGUER HOUSE - REPORTE DE VENTAS";
+    titulo.font = {
+        bold: true,
+        size: 18,
+        color: { argb: "FFFFFFFF" }
+    };
+    titulo.alignment = {
+        horizontal: "center",
+        vertical: "middle"
+    };
+    titulo.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFFF9800" }
+    };
+
+    // Encabezados
+    const encabezados = [
+        "N°",
+        "Fecha",
+        "Producto",
+        "Teléfono",
+        "Dirección",
+        "Cantidad",
+        "Precio",
+        "Total"
+    ];
+
+    const filaEncabezado = ws.addRow(encabezados);
+
+    filaEncabezado.eachCell(cell=>{
+        cell.font={
+            bold:true,
+            color:{argb:"FFFFFFFF"}
+        };
+
+        cell.fill={
+            type:"pattern",
+            pattern:"solid",
+            fgColor:{argb:"FFFF9800"}
+        };
+
+        cell.alignment={
+            horizontal:"center",
+            vertical:"middle"
+        };
+
+        cell.border={
+            top:{style:"thin"},
+            left:{style:"thin"},
+            bottom:{style:"thin"},
+            right:{style:"thin"}
+        };
+    });
+
+    let totalGeneral = 0;
+
+    data.forEach((v,i)=>{
+
+        totalGeneral += Number(v.total);
+
+        const row = ws.addRow([
+            i+1,
+            v.fecha,
+            v.producto,
+            v.telefono,
+            v.direccion,
+            v.cantidad,
+            Number(v.precio),
+            Number(v.total)
+        ]);
+
+        row.eachCell(cell=>{
+            cell.border={
+                top:{style:"thin"},
+                left:{style:"thin"},
+                bottom:{style:"thin"},
+                right:{style:"thin"}
+            };
+        });
+
+        // Filas alternadas
+        if(i % 2 === 0){
+            row.eachCell(cell=>{
+                cell.fill={
+                    type:"pattern",
+                    pattern:"solid",
+                    fgColor:{argb:"FFF7F7F7"}
+                };
+            });
+        }
+
+        row.getCell(7).numFmt='"C$"#,##0.00';
+        row.getCell(8).numFmt='"C$"#,##0.00';
+    });
+
+    // Total final
+    const filaTotal = ws.addRow([
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "TOTAL",
+        totalGeneral
+    ]);
+
+    filaTotal.font={bold:true};
+
+    filaTotal.getCell(7).fill={
+        type:"pattern",
+        pattern:"solid",
+        fgColor:{argb:"FFFFEB3B"}
+    };
+
+    filaTotal.getCell(8).fill={
+        type:"pattern",
+        pattern:"solid",
+        fgColor:{argb:"FFFFEB3B"}
+    };
+
+    filaTotal.getCell(8).numFmt='"C$"#,##0.00';
+
+    // Ajuste de columnas
+    ws.columns = [
+        {width:8},
+        {width:15},
+        {width:25},
+        {width:18},
+        {width:40},
+        {width:12},
+        {width:15},
+        {width:15}
+    ];
+
+    // Congelar encabezado
+    ws.views=[{
+        state:"frozen",
+        ySplit:2
+    }];
+
+    const buffer = await wb.xlsx.writeBuffer();
+
+    saveAs(
+        new Blob([buffer],{
+            type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        }),
+        fecha ? `Ventas-${fecha}.xlsx` : "Ventas Burguer House.xlsx"
+    );
+
+    toast("Excel profesional descargado ✔");
 }
-
-/* ================= EXCEL ================= */
-function exportarExcel(){
-
-let fecha=document.getElementById("filtroFecha")?.value;
-
-let data = fecha ? ventas.filter(v=>v.fecha===fecha) : ventas;
-
-if(data.length===0){
-return toast("No hay datos");
-}
-
-let excelData=data.map(v=>({
-Fecha:v.fecha,
-Producto:v.producto,
-Telefono:v.telefono,
-Direccion:v.direccion,
-Cantidad:v.cantidad,
-Total:v.total
-}));
-
-let wb=XLSX.utils.book_new();
-let ws=XLSX.utils.json_to_sheet(excelData);
-
-XLSX.utils.book_append_sheet(wb,ws,"Ventas");
-XLSX.writeFile(wb, fecha ? `ventas-${fecha}.xlsx` : "ventas.xlsx");
-
-toast("Excel descargado ✔");
-}
-
 /* ================= FILTRO VENTAS ================= */
 function filtrarVentas(){
 
@@ -530,7 +744,30 @@ ventas.map((v,i)=>`
 </tr>
 `).join("");
 }
+function cargarProductos() {
+    let select = document.getElementById("producto");
 
+    select.innerHTML = '<option value="">Seleccione un producto</option>';
+
+    inventario.forEach(item => {
+        let option = document.createElement("option");
+        option.value = item.producto;
+        option.textContent = item.producto;
+        select.appendChild(option);
+    });
+}
+
+function actualizarPrecio() {
+    let nombre = document.getElementById("producto").value;
+
+    let producto = inventario.find(p => p.producto === nombre);
+
+    if (producto) {
+        document.getElementById("precio").value = producto.precio;
+    } else {
+        document.getElementById("precio").value = "";
+    }
+}
 /* ================= ELIMINAR ================= */
 function eliminarVenta(i){
 let v=ventas[i];
@@ -692,65 +929,97 @@ init();
 
 let deferredPrompt;
 
-// ================= CREAR BOTÓN AUTOMÁTICO =================
+// ================= CREAR BOTÓN =================
 const installBtn = document.createElement("button");
 installBtn.innerHTML = "📲 Instalar App";
-installBtn.style.position = "fixed";
-installBtn.style.bottom = "20px";
-installBtn.style.left = "20px";
-installBtn.style.zIndex = "9999";
-installBtn.style.padding = "12px 16px";
-installBtn.style.borderRadius = "12px";
-installBtn.style.border = "none";
-installBtn.style.background = "#ff9800";
-installBtn.style.color = "#000";
-installBtn.style.fontWeight = "bold";
-installBtn.style.fontSize = "14px";
-installBtn.style.display = "none";
-installBtn.style.cursor = "pointer";
+
+Object.assign(installBtn.style,{
+    position:"fixed",
+    bottom:"20px",
+    left:"20px",
+    zIndex:"9999",
+    padding:"12px 16px",
+    borderRadius:"12px",
+    border:"none",
+    background:"#ff9800",
+    color:"#000",
+    fontWeight:"bold",
+    fontSize:"14px",
+    display:"none",
+    cursor:"pointer"
+});
+
 document.body.appendChild(installBtn);
 
-// ================= DETECTAR INSTALACIÓN =================
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-
-  // mostrar botón automáticamente
-  installBtn.style.display = "block";
+// ================= INSTALAR =================
+window.addEventListener("beforeinstallprompt",(e)=>{
+    e.preventDefault();
+    deferredPrompt=e;
+    installBtn.style.display="block";
 });
 
-// ================= CLICK INSTALAR =================
-installBtn.addEventListener("click", async () => {
-  installBtn.style.display = "none";
+installBtn.onclick=async()=>{
+    installBtn.style.display="none";
 
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
+    if(deferredPrompt){
+        deferredPrompt.prompt();
 
-    const choice = await deferredPrompt.userChoice;
+        const {outcome}=await deferredPrompt.userChoice;
 
-    if (choice.outcome === "accepted") {
-      console.log("App instalada");
-    } else {
-      console.log("Usuario canceló");
+        if(outcome==="accepted"){
+            console.log("Instalada");
+        }
+
+        deferredPrompt=null;
     }
+};
 
-    deferredPrompt = null;
-  }
-});
-
-// ================= YA INSTALADA =================
-window.addEventListener("appinstalled", () => {
-  console.log("PWA instalada correctamente");
-  installBtn.remove();
+window.addEventListener("appinstalled",()=>{
+    installBtn.remove();
+    console.log("PWA instalada");
 });
 
 // ================= SERVICE WORKER =================
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js")
-      .then((reg) => console.log("SW activo:", reg.scope))
-      .catch((err) => console.log("Error SW:", err));
-  });
+if("serviceWorker" in navigator){
+
+window.addEventListener("load",async()=>{
+
+const reg=await navigator.serviceWorker.register("sw.js");
+
+// Buscar actualización automáticamente
+setInterval(()=>{
+    reg.update();
+},60000);
+
+// Si existe una nueva versión
+reg.addEventListener("updatefound",()=>{
+
+const newWorker=reg.installing;
+
+newWorker.addEventListener("statechange",()=>{
+
+if(newWorker.state==="installed" && navigator.serviceWorker.controller){
+
+if(confirm("🆕 Hay una nueva versión disponible.\n\n¿Desea actualizar ahora?")){
+
+newWorker.postMessage({
+action:"skipWaiting"
+});
+
+}
+
+}
+
+});
+
+});
+
+navigator.serviceWorker.addEventListener("controllerchange",()=>{
+location.reload();
+});
+
+});
+
 }
 </script>
 </body>

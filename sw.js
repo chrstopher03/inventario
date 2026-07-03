@@ -1,54 +1,52 @@
-const CACHE_NAME = "burguer-house-v2";
+// ================= VERSION =================
+const VERSION = "1.0.1"; // Cambia este número en cada actualización
+const CACHE_NAME = "burguer-house-" + VERSION;
 
-// Archivos base de la app
 const urlsToCache = [
-  "./",
-  "./index.html",
-  "./logo.jpeg",
-  "./manifest.json"
+    "./",
+    "./index.html",
+    "./logo.jpeg",
+    "./manifest.json"
 ];
 
-// ================= INSTALL =================
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache);
-    })
-  );
+// ================= INSTALAR =================
+self.addEventListener("install", event => {
+    self.skipWaiting();
 
-  // activa rápido el SW nuevo
-  self.skipWaiting();
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => cache.addAll(urlsToCache))
+    );
 });
 
-// ================= ACTIVATE =================
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
-      );
-    })
-  );
+// ================= ACTIVAR =================
+self.addEventListener("activate", event => {
+    event.waitUntil(
+        caches.keys().then(keys =>
+            Promise.all(
+                keys.map(key => {
+                    if (key !== CACHE_NAME) {
+                        return caches.delete(key);
+                    }
+                })
+            )
+        )
+    );
 
-  self.clients.claim();
+    self.clients.claim();
 });
 
-// ================= FETCH (CACHE FIRST + NETWORK FALLBACK) =================
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return (
-        cached ||
-        fetch(event.request).then((response) => {
-          // guardar nuevas peticiones en cache
-          return caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, response.clone());
-            return response;
-          });
+// ================= FETCH =================
+self.addEventListener("fetch", event => {
+    event.respondWith(
+        caches.match(event.request).then(response => {
+            return response || fetch(event.request);
         })
-      );
-    })
-  );
+    );
+});
+
+self.addEventListener("message",event=>{
+    if(event.data.action==="skipWaiting"){
+        self.skipWaiting();
+    }
 });
