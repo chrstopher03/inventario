@@ -254,7 +254,58 @@ body{
 </head>
 
 <body>
+<div id="login" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#111;
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:999999;
+">
 
+<div style="
+background:#1b1b1b;
+padding:30px;
+border-radius:15px;
+width:320px;
+text-align:center;
+">
+
+<img src="logo.jpeg" width="90" style="border-radius:50%;margin-bottom:15px;">
+
+<h2 style="color:#fff;margin-bottom:20px;">Iniciar Sesión</h2>
+
+<input
+id="usuario"
+placeholder="Usuario"
+style="width:100%;padding:12px;margin-bottom:12px;border:none;border-radius:10px;background:#333;color:#fff;">
+
+<input
+id="clave"
+type="password"
+placeholder="Contraseña"
+style="width:100%;padding:12px;margin-bottom:18px;border:none;border-radius:10px;background:#333;color:#fff;">
+
+<button onclick="loginSistema()" style="
+width:100%;
+padding:12px;
+background:#ff9800;
+border:none;
+border-radius:10px;
+font-weight:bold;
+cursor:pointer;">
+Entrar
+</button>
+
+<p id="errorLogin" style="color:red;margin-top:12px;"></p>
+
+</div>
+
+</div>
 <div id="toast"></div>
 
 <header>
@@ -645,7 +696,54 @@ return `
 
 document.getElementById("totalDia").innerText="Total: C$"+total.toFixed(2);
 }
+const USUARIO = "burguer house";
+const CLAVE = "burguer150210";
 
+function loginSistema(){
+
+    const u = document.getElementById("usuario").value.trim();
+    const c = document.getElementById("clave").value.trim();
+
+    if(u===USUARIO && c===CLAVE){
+
+        localStorage.setItem("loginBH","ok");
+        localStorage.setItem("loginHora",Date.now());
+
+        document.getElementById("login").style.display="none";
+
+    }else{
+
+        document.getElementById("errorLogin").innerHTML="Usuario o contraseña incorrectos";
+
+    }
+
+}
+
+function verificarLogin(){
+
+    const login = localStorage.getItem("loginBH");
+    const hora = Number(localStorage.getItem("loginHora")||0);
+
+    const ahora = Date.now();
+
+    const horas24 = 24*60*60*1000;
+
+    if(login==="ok" && (ahora-hora)<horas24){
+
+        document.getElementById("login").style.display="none";
+
+    }else{
+
+        localStorage.removeItem("loginBH");
+        localStorage.removeItem("loginHora");
+
+        document.getElementById("login").style.display="flex";
+
+    }
+
+}
+
+verificarLogin();
 /* ================= INVENTARIO ================= */
 function guardarStock(){
 let p=document.getElementById("productoStock").value.trim();

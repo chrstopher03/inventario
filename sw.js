@@ -1,5 +1,5 @@
 // ================= VERSION =================
-const VERSION = "1.0.3."; // Cambia este número en cada actualización
+const VERSION = "1.0.2."; // Cambia este número en cada actualización
 const CACHE_NAME = "burguer-house-" + VERSION;
 
 const urlsToCache = [
