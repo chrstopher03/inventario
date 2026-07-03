@@ -281,7 +281,7 @@ body{
 
     <div class="form">
 
-        <select id="producto">
+                <select id="producto">
             <option value="">🍔 Producto</option>
             <option value="Doble House">Doble House</option>
             <option value="Club Sandwich">Club Sandwich</option>
@@ -321,6 +321,20 @@ body{
             <option value="Agua Cielo limon">Agua Cielo limon</option>
             <option value="Agua Cielo Manzana">Agua Cielo Manzana</option>
             
+        <button onclick="guardarVenta()">
+            <i class="fa-solid fa-cart-shopping"></i> Guardar Venta
+        </button>
+
+    </div>
+
+        <input id="precio" type="number" placeholder="Precio">
+
+        <input id="cantidad" type="number" placeholder="Cantidad" min="1">
+
+        <input id="telefono" type="tel" placeholder="Número de teléfono">
+
+        <input id="direccion" type="text" placeholder="Dirección del cliente">
+
         <button onclick="guardarVenta()">
             <i class="fa-solid fa-cart-shopping"></i> Guardar Venta
         </button>
