@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="logoo.jpeg">
+<link rel="icon" href="logo.jpeg">
 
 <title>Sistema de Ventas</title>
 
@@ -674,7 +674,116 @@ grid-template-columns:1fr;
 }
 
 }
+/* =========================
+ SELECT PRODUCTOS
+========================= */
 
+.product-select{
+
+width:100%;
+padding:14px 16px;
+
+border:none;
+outline:none;
+
+border-radius:14px;
+
+background:#f5f5f7;
+
+font-size:15px;
+
+font-weight:600;
+
+color:#333;
+
+cursor:pointer;
+
+transition:.3s;
+
+appearance:none;
+
+
+background-image:
+linear-gradient(45deg,transparent 50%,#7000ff 50%),
+linear-gradient(135deg,#7000ff 50%,transparent 50%);
+
+
+background-position:
+calc(100% - 20px) 50%,
+calc(100% - 14px) 50%;
+
+
+background-size:
+6px 6px,
+6px 6px;
+
+
+background-repeat:no-repeat;
+
+}
+
+
+
+.product-select:hover{
+
+background:#eeeeff;
+
+}
+
+
+
+.product-select:focus{
+
+box-shadow:
+0 0 0 3px rgba(112,0,255,.18);
+
+}
+
+
+
+
+
+/* =========================
+ BOTON CONFIRMAR
+========================= */
+
+.save-sale-btn{
+
+width:100%;
+
+margin-top:15px;
+
+padding:14px;
+
+border:none;
+
+border-radius:14px;
+
+background:
+linear-gradient(90deg,#8e3eff,#7000ff);
+
+color:white;
+
+font-weight:bold;
+
+font-size:15px;
+
+cursor:pointer;
+
+transition:.3s;
+
+}
+
+
+
+.save-sale-btn:hover{
+
+transform:translateY(-2px);
+
+box-shadow:
+0 8px 20px rgba(112,0,255,.3);
+
+}
 /* =========================
    TABLET
 ========================= */
@@ -780,7 +889,7 @@ min-width:450px;
 
 <i class="fa-solid fa-burger"></i>
 
-<h1>Mi Hamburguesería</h1>
+<h1>Burguer House</h1>
 
 <p>Registro de Ventas</p>
 
@@ -799,22 +908,20 @@ Resumen
 </button>
 
 
+<button onclick="window.location.href='inventario.html'">
 
-<button onclick="window.location.href='hamburguesas.html'">
+<i class="fa-solid fa-boxes-stacked"></i>
 
-<i class="fa-solid fa-burger"></i>
-
-Hamburguesas
+Inventario
 
 </button>
 
 
+<button onclick="window.location.href='deudas.html'">
 
-<button onclick="window.location.href='bebidas.html'">
+<i class="fa-solid fa-hand-holding-dollar"></i>
 
-<i class="fa-solid fa-glass-water"></i>
-
-Bebidas
+Deudas
 
 </button>
 
@@ -1007,10 +1114,6 @@ Hoy
 
 <div class="cards">
 
-
-
-
-
 <!-- =====================
  HAMBURGUESAS
 ===================== -->
@@ -1051,26 +1154,159 @@ Agrega varios productos en una venta
 
 
 <div class="form">
+<!-- =====================
+ SELECT PRODUCTO
+===================== -->
 
 
-<input
+<select 
 id="burgerName"
-type="text"
-placeholder="Hamburguesa">
+class="product-select">
 
 
+<option value="">
+Seleccionar 
+</option>
+
+
+<option value="Doble House">
+Doble House
+</option>
+
+
+<option value="Club Sandwich">
+Club Sandwich
+</option>
+
+
+<option value="Doble king">
+Doble king
+</option>
+
+
+<option value="Monster House">
+Monster House
+</option>
+
+
+<option value="Chesse Clasica">
+Chesse Clasica
+</option>
+
+
+<option value="Club Burguer">
+Club Burguer
+</option>
+
+
+<option value="Burrito XL">
+Burrito XL
+</option>
+
+
+<option value="Carnívora (G)">
+Carnívora (G)
+</option>
+
+
+<option value="Dedos de pollo">
+Dedos de pollo
+</option>
+
+
+<option value="Salchipapa (G)">
+Salchipapa (G)
+</option>
+
+<option value="Salchipapa (M)">
+Salchipapa (M)
+</option>
+
+<option value="Salchipollo Crispy">
+Salchipollo Crispy
+</option>
+
+<option value="Bandeja Expres">
+Bandeja Expres
+</option>
+
+<option value="Bandeja House">
+Bandeja House
+</option>
+
+
+<option value="Bandeja Mundialista
+">
+Bandeja Mundialista
+</option>
+
+<option value="Bandeja Fest">
+Bandeja Fest
+</option>
+
+<option value="El Híbrido">
+El Híbrido
+</option>
+
+<option value="Tio Primo">
+Tio Primo
+</option>
+
+<option value="Love and Thunder">
+Love and Thunder
+</option>
+
+
+<option value="Combo House">
+Combo House
+</option>
+
+
+<option value="Combo Familiar">
+Combo Familiar
+</option>
+
+
+<option value="Combo Shark">
+Combo Shark
+</option>
+
+
+<option value="Combo X4">
+Combo X4
+</option>
+
+
+<option value="Combo Dude Perfect">
+Combo Dude Perfect
+</option>
+
+</select>
+
+
+
+
+
+<!-- PRECIO MANUAL -->
 
 <input
 id="burgerPrice"
 type="number"
-placeholder="Precio">
+placeholder="Ingresar precio">
 
 
+
+
+
+<!-- CANTIDAD -->
 
 <input
 id="burgerQty"
 type="number"
-placeholder="Cantidad">
+placeholder="Cantidad"
+min="1">
+
+
 
 
 
@@ -1086,6 +1322,9 @@ placeholder="Cantidad">
 
 
 
+
+
+
 <div class="table-container">
 
 
@@ -1094,26 +1333,32 @@ placeholder="Cantidad">
 
 <thead>
 
+
 <tr>
 
 <th>
 Producto
 </th>
 
+
 <th>
 Precio
 </th>
+
 
 <th>
 Cantidad
 </th>
 
+
 <th>
 Total
 </th>
 
+
 <th>
 </th>
+
 
 </tr>
 
@@ -1121,9 +1366,11 @@ Total
 </thead>
 
 
+
 <tbody id="tempBurgerTable">
 
 </tbody>
+
 
 
 </table>
@@ -1134,18 +1381,13 @@ Total
 
 
 
-<button onclick="saveBurgerSale()"
-style="
-width:100%;
-margin-top:15px;
-padding:14px;
-border:none;
-border-radius:14px;
-background:linear-gradient(90deg,#8e3eff,#7000ff);
-color:white;
-font-weight:bold;
-cursor:pointer;
-">
+
+
+
+
+<button 
+onclick="saveBurgerSale()"
+class="save-sale-btn">
 
 
 <i class="fa-solid fa-check"></i>
@@ -1159,7 +1401,15 @@ Confirmar Venta
 
 
 
+
+
+
 <div class="line"></div>
+
+
+
+
+
 
 
 <table>
@@ -1167,7 +1417,9 @@ Confirmar Venta
 
 <thead>
 
+
 <tr>
+
 
 <th>
 Producto
@@ -1194,12 +1446,16 @@ Total
 </thead>
 
 
+
 <tbody id="burgerTable">
 
 </tbody>
 
 
+
 </table>
+
+
 
 
 
@@ -1223,12 +1479,8 @@ C$ 0.00
 </div>
 
 
+
 </div>
-
-
-
-
-
 
 
 
@@ -1257,14 +1509,17 @@ C$ 0.00
 Bebidas
 </h2>
 
+
 <p>
 Agrega varias bebidas en una venta
 </p>
 
+
 </div>
 
 
 </div>
+
 
 
 
@@ -1274,38 +1529,134 @@ Agrega varias bebidas en una venta
 
 
 
+
+
 <div class="form">
 
 
-<input
-id="drinkName"
-type="text"
-placeholder="Bebida">
 
+
+
+<!-- =====================
+ SELECT BEBIDA
+===================== -->
+
+
+<select
+id="drinkName"
+class="product-select"
+onchange="selectDrink()">
+
+
+
+<option value="">
+ Seleccionar
+</option>
+
+
+
+<option
+value="Coca Cola"
+data-price="35">
+
+Coca Cola - C$35
+
+</option>
+
+
+
+<option
+value="Pepsi"
+data-price="30">
+
+Pepsi - C$30
+
+</option>
+
+
+
+<option
+value="Jugo Natural"
+data-price="45">
+
+Jugo Natural - C$45
+
+</option>
+
+
+
+<option
+value="Agua"
+data-price="20">
+
+Agua - C$20
+
+</option>
+
+
+
+<option
+value="Café"
+data-price="40">
+
+Café - C$40
+
+</option>
+
+
+
+</select>
+
+
+
+
+
+
+
+<!-- PRECIO AUTOMÁTICO -->
 
 
 <input
 id="drinkPrice"
 type="number"
-placeholder="Precio">
+placeholder="Precio"
+readonly>
 
+
+
+
+
+
+<!-- CANTIDAD -->
 
 
 <input
 id="drinkQty"
 type="number"
-placeholder="Cantidad">
+placeholder="Cantidad"
+min="1">
+
+
+
 
 
 
 <button onclick="addDrinkTemp()">
 
+
 <i class="fa-solid fa-plus"></i>
+
 
 </button>
 
 
+
+
+
 </div>
+
+
+
 
 
 
@@ -1353,9 +1704,11 @@ Total
 </thead>
 
 
+
 <tbody id="tempDrinkTable">
 
 </tbody>
+
 
 
 </table>
@@ -1366,20 +1719,17 @@ Total
 
 
 
-<button onclick="saveDrinkSale()"
-style="
-width:100%;
-margin-top:15px;
-padding:14px;
-border:none;
-border-radius:14px;
-background:linear-gradient(90deg,#8e3eff,#7000ff);
-color:white;
-font-weight:bold;
-cursor:pointer;
-">
+
+
+
+
+<button 
+onclick="saveDrinkSale()"
+class="save-sale-btn">
+
 
 <i class="fa-solid fa-check"></i>
+
 
 Confirmar Venta
 
@@ -1390,7 +1740,14 @@ Confirmar Venta
 
 
 
+
+
+
 <div class="line"></div>
+
+
+
+
 
 
 
@@ -1399,7 +1756,9 @@ Confirmar Venta
 
 <thead>
 
+
 <tr>
+
 
 <th>
 Producto
@@ -1426,12 +1785,18 @@ Total
 </thead>
 
 
+
+
 <tbody id="drinkTable">
 
 </tbody>
 
 
+
 </table>
+
+
+
 
 
 
@@ -1444,6 +1809,7 @@ Total Bebidas
 </h3>
 
 
+
 <h1 id="drinkTotal">
 
 C$ 0.00
@@ -1451,77 +1817,12 @@ C$ 0.00
 </h1>
 
 
-</div>
-
 
 </div>
 
 
 
-
 </div>
-
-
-
-
-
-
-<!-- FOOTER -->
-
-
-<div class="footer">
-
-
-<div class="footer-left">
-
-
-<div class="footer-icon">
-
-<i class="fa-solid fa-sack-dollar"></i>
-
-</div>
-
-
-
-<div>
-
-
-<h2>
-Total General de Ventas
-</h2>
-
-
-<p>
-Hamburguesas + Bebidas vendidas hoy
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-<h1 id="generalTotal">
-
-C$ 0.00
-
-</h1>
-
-
-</div>
-
-
-
-
-
-</div>
-
-
-</div>
-
-
 </body>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>/* =========================
@@ -1550,7 +1851,19 @@ actualizarFechaHeader();
 
 
 
+function selectDrink(){
 
+    let select=document.getElementById("drinkName");
+
+
+    let price =
+    select.options[select.selectedIndex].dataset.price;
+
+
+    document.getElementById("drinkPrice").value =
+    price || "";
+
+}
 /* =========================
    ALERTAS PROFESIONALES
 ========================= */
@@ -1694,7 +2007,17 @@ function saveDailySales(){
 
 
 
+function selectBurger(){
 
+    let select=document.getElementById("burgerName");
+
+    let option=select.options[select.selectedIndex];
+
+
+    document.getElementById("burgerPrice").value =
+    option.dataset.price || "";
+
+}
 
 
 
