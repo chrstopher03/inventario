@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Comidas y Frescos</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:#2b0b73;
+    padding:20px;
+    color:#222;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+}
+
+.header{
+    background:white;
+    border-radius:25px;
+    padding:25px;
+    margin-bottom:25px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:20px;
+}
+
+.header h1{
+    color:#5d12d9;
+    font-size:35px;
+}
+
+.fecha{
+    background:#f3ebff;
+    padding:12px 18px;
+    border-radius:14px;
+    color:#5d12d9;
+    font-weight:700;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(500px,1fr));
+    gap:25px;
+}
+
+.card{
+    background:white;
+    border-radius:25px;
+    padding:25px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.card h2{
+    color:#5d12d9;
+    margin-bottom:20px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.form{
+    display:grid;
+    gap:12px;
+}
+
+.form input,
+.form select{
+    padding:14px;
+    border-radius:14px;
+    border:1px solid #ddd;
+    outline:none;
+    font-size:14px;
+}
+
+.form input:focus,
+.form select:focus{
+    border-color:#7b2ff7;
+}
+
+.btn{
+    border:none;
+    padding:14px;
+    border-radius:14px;
+    background:linear-gradient(90deg,#7b2ff7,#5d12d9);
+    color:white;
+    font-weight:700;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.btn:hover{
+    transform:scale(1.02);
+}
+
+.table-container{
+    overflow-x:auto;
+    margin-top:20px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:650px;
+}
+
+th{
+    background:#f3ebff;
+    color:#5d12d9;
+    padding:14px;
+    text-align:left;
+    font-size:13px;
+}
+
+td{
+    padding:14px;
+    border-bottom:1px solid #eee;
+    font-size:13px;
+}
+
+.total{
+    margin-top:20px;
+    background:#f3ebff;
+    padding:18px;
+    border-radius:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.total h1{
+    color:#5d12d9;
+}
+
+.delete{
+    border:none;
+    background:#ffe6e6;
+    color:red;
+    padding:10px 12px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.summary{
+    margin-top:25px;
+    background:white;
+    border-radius:25px;
+    padding:25px;
+}
+
+.summary-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+    margin-top:20px;
+}
+
+.summary-box{
+    background:#f3ebff;
+    padding:20px;
+    border-radius:18px;
+}
+
+.summary-box h3{
+    color:#666;
+    margin-bottom:10px;
+}
+
+.summary-box h1{
+    color:#5d12d9;
+}
+
+@media(max-width:700px){
+
+.cards{
+    grid-template-columns:1fr;
+}
+
+.header h1{
+    font-size:28px;
+}
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div>
+
+            <h1>
+                <i class="fa-solid fa-coins"></i>
+                Comidas y Frescos
+            </h1>
+
+            <p>
+                Control de gastos e inversión del negocio
+            </p>
+
+        </div>
+
+        <div class="fecha" id="fechaActual"></div>
+
+    </div>
+
+    <!-- CARDS -->
+
+    <div class="cards">
+
+        <!-- DINERO ENTREGADO -->
+
+        <div class="card">
+
+            <h2>
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+                Dinero Entregado
+            </h2>
+
+            <div class="form">
+
+                <input type="text" id="persona" placeholder="Nombre de la persona">
+                <input type="number" id="monto" placeholder="Cantidad entregada">
+
+                <select id="tipoEntrega">
+                    <option value="Inversión">Dinero para inversión</option>
+                    <option value="Gastos">Dinero para gastos</option>
+                </select>
+
+                <button class="btn" onclick="agregarEntrega()">
+                    <i class="fa-solid fa-plus"></i>
+                    Guardar Entrega
+                </button>
+
+                <!-- 🔥 BOTÓN PDF ENTREGAS -->
+                <button class="btn" onclick="descargarFacturaPDF()">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    Descargar Factura PDF
+                </button>
+
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Persona</th>
+                            <th>Tipo</th>
+                            <th>Monto</th>
+                            <th>Fecha</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tablaEntregas"></tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- GASTOS -->
+
+        <div class="card">
+
+            <h2>
+                <i class="fa-solid fa-cart-shopping"></i>
+                Gastos del Negocio
+            </h2>
+
+            <div class="form">
+
+                <input type="text" id="producto" placeholder="Producto comprado">
+                <input type="number" id="gasto" placeholder="Cantidad gastada">
+                <input type="text" id="comprador" placeholder="Quién realizó el gasto">
+
+                <button class="btn" onclick="agregarGasto()">
+                    <i class="fa-solid fa-plus"></i>
+                    Guardar Gasto
+                </button>
+
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Gastó</th>
+                            <th>Monto</th>
+                            <th>Fecha</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tablaGastos"></tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- RESUMEN -->
+
+    <div class="summary">
+
+        <h2>
+            <i class="fa-solid fa-chart-line"></i>
+            Resumen General
+        </h2>
+
+        <div class="summary-grid">
+
+            <div class="summary-box">
+                <h3>Total Entregado</h3>
+                <h1 id="totalEntregado">C$ 0.00</h1>
+            </div>
+
+            <div class="summary-box">
+                <h3>Total Gastos</h3>
+                <h1 id="totalGastos">C$ 0.00</h1>
+            </div>
+
+            <div class="summary-box">
+                <h3>Total General</h3>
+                <h1 id="totalGeneral">C$ 0.00</h1>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- 🔥 LIBRERÍA PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+/* =========================
+   FECHA
+========================= */
+
+function actualizarFecha(){
+
+    const fecha = new Date();
+
+    document.getElementById("fechaActual").innerHTML =
+    fecha.toLocaleDateString("es-NI",{
+        weekday:"long",
+        day:"numeric",
+        month:"long",
+        year:"numeric"
+    });
+
+}
+
+actualizarFecha();
+
+/* =========================
+   STORAGE
+========================= */
+
+let entregas =
+JSON.parse(
+localStorage.getItem("entregasNegocio")
+) || [];
+
+let gastos =
+JSON.parse(
+localStorage.getItem("gastosNegocio")
+) || [];
+
+/* =========================
+   ALERTAS PRO
+========================= */
+
+function alertaError(mensaje){
+
+    Swal.fire({
+        icon:"error",
+        title:"Error",
+        text:mensaje,
+        confirmButtonColor:"#5d12d9"
+    });
+
+}
+
+function alertaExito(mensaje){
+
+    Swal.fire({
+        icon:"success",
+        title:"Éxito",
+        text:mensaje,
+        timer:1800,
+        showConfirmButton:false
+    });
+
+}
+
+/* =========================
+   GUARDAR
+========================= */
+
+function guardarDatos(){
+
+    localStorage.setItem(
+        "entregasNegocio",
+        JSON.stringify(entregas)
+    );
+
+    localStorage.setItem(
+        "gastosNegocio",
+        JSON.stringify(gastos)
+    );
+
+}
+
+/* =========================
+   AGREGAR ENTREGA
+========================= */
+
+function agregarEntrega(){
+
+    let persona =
+    document.getElementById("persona")
+    .value.trim();
+
+    let monto =
+    parseFloat(
+    document.getElementById("monto")
+    .value);
+
+    let tipo =
+    document.getElementById("tipoEntrega")
+    .value;
+
+    if(!persona || isNaN(monto)){
+
+        alertaError(
+        "Completa todos los campos."
+        );
+
+        return;
+    }
+
+    entregas.unshift({
+
+        id:Date.now(),
+
+        persona,
+
+        monto,
+
+        tipo,
+
+        fecha:new Date()
+        .toLocaleString("es-NI")
+
+    });
+
+    guardarDatos();
+
+    renderEntregas();
+
+    document.getElementById("persona").value="";
+    document.getElementById("monto").value="";
+
+    alertaExito(
+    "Entrega registrada correctamente"
+    );
+
+}
+
+/* =========================
+   AGREGAR GASTO
+========================= */
+
+function agregarGasto(){
+
+    let producto =
+    document.getElementById("producto")
+    .value.trim();
+
+    let gasto =
+    parseFloat(
+    document.getElementById("gasto")
+    .value);
+
+    let comprador =
+    document.getElementById("comprador")
+    .value.trim();
+
+    if(!producto || isNaN(gasto) || !comprador){
+
+        alertaError(
+        "Completa todos los campos."
+        );
+
+        return;
+    }
+
+    gastos.unshift({
+
+        id:Date.now(),
+
+        producto,
+
+        gasto,
+
+        comprador,
+
+        fecha:new Date()
+        .toLocaleString("es-NI")
+
+    });
+
+    guardarDatos();
+
+    renderGastos();
+
+    document.getElementById("producto").value="";
+    document.getElementById("gasto").value="";
+    document.getElementById("comprador").value="";
+
+    alertaExito(
+    "Gasto registrado correctamente"
+    );
+
+}
+
+/* =========================
+   RENDER
+========================= */
+
+function renderEntregas(){
+
+    const tabla =
+    document.getElementById(
+    "tablaEntregas"
+    );
+
+    tabla.innerHTML="";
+
+    let total=0;
+
+    entregas.forEach((e,index)=>{
+
+        total += e.monto;
+
+        tabla.innerHTML += `
+        <tr>
+            <td>${e.persona}</td>
+            <td>${e.tipo}</td>
+            <td>C$ ${e.monto.toFixed(2)}</td>
+            <td>${e.fecha}</td>
+            <td>
+                <button
+                class="delete"
+                onclick="eliminarEntrega(${index})">
+                🗑
+                </button>
+            </td>
+        </tr>`;
+    });
+
+    document.getElementById(
+    "totalEntregado"
+    ).innerText =
+    "C$ " + total.toFixed(2);
+
+    actualizarGeneral();
+
+}
+
+function renderGastos(){
+
+    const tabla =
+    document.getElementById(
+    "tablaGastos"
+    );
+
+    tabla.innerHTML="";
+
+    let total=0;
+
+    gastos.forEach((g,index)=>{
+
+        total += g.gasto;
+
+        tabla.innerHTML += `
+        <tr>
+            <td>${g.producto}</td>
+            <td>${g.comprador}</td>
+            <td>C$ ${g.gasto.toFixed(2)}</td>
+            <td>${g.fecha}</td>
+            <td>
+                <button
+                class="delete"
+                onclick="eliminarGasto(${index})">
+                🗑
+                </button>
+            </td>
+        </tr>`;
+    });
+
+    document.getElementById(
+    "totalGastos"
+    ).innerText =
+    "C$ " + total.toFixed(2);
+
+    actualizarGeneral();
+
+}
+
+/* =========================
+   ELIMINAR
+========================= */
+
+async function eliminarEntrega(index){
+
+    const result =
+    await Swal.fire({
+
+        title:"¿Eliminar entrega?",
+
+        text:"Esta acción no se puede deshacer.",
+
+        icon:"warning",
+
+        showCancelButton:true,
+
+        confirmButtonColor:"#d33",
+
+        cancelButtonColor:"#5d12d9",
+
+        confirmButtonText:"Eliminar",
+
+        cancelButtonText:"Cancelar"
+
+    });
+
+    if(!result.isConfirmed) return;
+
+    entregas.splice(index,1);
+
+    guardarDatos();
+
+    renderEntregas();
+
+    alertaExito(
+    "Entrega eliminada"
+    );
+
+}
+
+async function eliminarGasto(index){
+
+    const result =
+    await Swal.fire({
+
+        title:"¿Eliminar gasto?",
+
+        text:"Esta acción no se puede deshacer.",
+
+        icon:"warning",
+
+        showCancelButton:true,
+
+        confirmButtonColor:"#d33",
+
+        cancelButtonColor:"#5d12d9",
+
+        confirmButtonText:"Eliminar",
+
+        cancelButtonText:"Cancelar"
+
+    });
+
+    if(!result.isConfirmed) return;
+
+    gastos.splice(index,1);
+
+    guardarDatos();
+
+    renderGastos();
+
+    alertaExito(
+    "Gasto eliminado"
+    );
+
+}
+/* =========================
+   TOTAL GENERAL
+========================= */
+
+function actualizarGeneral(){
+
+    let totalEntregado = entregas.reduce((a,b)=>a+b.monto,0);
+    let totalGastos = gastos.reduce((a,b)=>a+b.gasto,0);
+
+    document.getElementById("totalGeneral").innerText =
+    "C$ " + (totalEntregado - totalGastos).toFixed(2);
+}function descargarFacturaPDF(){
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    let y = 20;
+
+    /* =========================
+       HEADER PRO
+    ========================= */
+
+    doc.setFillColor(93, 18, 217);
+    doc.rect(0, 0, 220, 40, "F");
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.text("COMIDAS Y FRESCOS", 105, 18, { align: "center" });
+
+    doc.setFontSize(11);
+    doc.text("FACTURA DE MOVIMIENTOS DEL NEGOCIO", 105, 28, { align: "center" });
+
+    doc.setFontSize(9);
+    doc.text("Generado: " + new Date().toLocaleString("es-NI"), 105, 36, { align: "center" });
+
+    y = 50;
+
+    doc.setTextColor(0,0,0);
+
+    /* =========================
+       ENTREGAS
+    ========================= */
+
+    doc.setFontSize(13);
+    doc.setTextColor(93, 18, 217);
+    doc.text("ENTREGAS", 20, y);
+
+    y += 8;
+
+    doc.setTextColor(0,0,0);
+
+    let totalEntregado = 0;
+
+    // CABECERA TABLA
+    doc.setFontSize(10);
+    doc.text("Persona", 20, y);
+    doc.text("Tipo", 80, y);
+    doc.text("Monto", 150, y);
+
+    y += 5;
+    doc.line(20, y, 190, y);
+    y += 6;
+
+    entregas.forEach((e) => {
+
+        totalEntregado += Number(e.monto || 0);
+
+        doc.text(String(e.persona).substring(0,20), 20, y);
+        doc.text(String(e.tipo), 80, y);
+        doc.text(`C$ ${Number(e.monto || 0).toFixed(2)}`, 150, y);
+
+        y += 7;
+
+        doc.setFontSize(8);
+        doc.setTextColor(120);
+        doc.text(String(e.fecha), 20, y);
+
+        doc.setTextColor(0,0,0);
+        doc.setFontSize(10);
+
+        y += 8;
+
+        if(y > 270){
+            doc.addPage();
+            y = 20;
+        }
+    });
+
+    y += 5;
+    doc.line(20, y, 190, y);
+    y += 10;
+
+    /* =========================
+       GASTOS
+    ========================= */
+
+    doc.setFontSize(13);
+    doc.setTextColor(93, 18, 217);
+    doc.text("GASTOS", 20, y);
+
+    y += 8;
+
+    doc.setTextColor(0,0,0);
+
+    let totalGastos = 0;
+
+    // CABECERA
+    doc.setFontSize(10);
+    doc.text("Producto", 20, y);
+    doc.text("Comprador", 80, y);
+    doc.text("Monto", 150, y);
+
+    y += 5;
+    doc.line(20, y, 190, y);
+    y += 6;
+
+    gastos.forEach((g) => {
+
+        totalGastos += Number(g.gasto || 0);
+
+        doc.text(String(g.producto).substring(0,20), 20, y);
+        doc.text(String(g.comprador), 80, y);
+        doc.text(`C$ ${Number(g.gasto || 0).toFixed(2)}`, 150, y);
+
+        y += 7;
+
+        doc.setFontSize(8);
+        doc.setTextColor(120);
+        doc.text(String(g.fecha), 20, y);
+
+        doc.setTextColor(0,0,0);
+        doc.setFontSize(10);
+
+        y += 8;
+
+        if(y > 270){
+            doc.addPage();
+            y = 20;
+        }
+    });
+
+    y += 10;
+
+    /* =========================
+       RESUMEN FINAL PRO
+    ========================= */
+
+    let balance = totalEntregado - totalGastos;
+
+    doc.setFillColor(245, 245, 255);
+    doc.rect(15, y, 180, 40, "F");
+
+    doc.setFontSize(11);
+
+    doc.setTextColor(0,0,0);
+    doc.text("TOTAL ENTREGADO:", 20, y + 10);
+    doc.text(`C$ ${totalEntregado.toFixed(2)}`, 150, y + 10);
+
+    doc.text("TOTAL GASTOS:", 20, y + 20);
+    doc.text(`C$ ${totalGastos.toFixed(2)}`, 150, y + 20);
+
+    doc.setFontSize(12);
+
+    doc.setTextColor(balance >= 0 ? 0 : 200, 0, 0);
+    doc.text("BALANCE FINAL:", 20, y + 32);
+    doc.text(`C$ ${balance.toFixed(2)}`, 150, y + 32);
+
+    /* =========================
+       FOOTER
+    ========================= */
+
+    doc.setFontSize(9);
+    doc.setTextColor(120);
+    doc.text("Sistema Comidas y Frescos - Documento generado automáticamente", 105, 285, { align: "center" });
+
+    doc.save("factura-comidas-frescos.pdf");
+}
+/* =========================
+   INIT
+========================= */
+
+renderEntregas();
+renderGastos();
+
+</script>
+
+</body>
+</html>

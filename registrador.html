@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MOCHI BURGERS</title>
+
+<link rel="icon" href="1.jpeg">
+
+<link rel="stylesheet" href="estilos.css">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+</head>
+
+<body class="p-6">
+
+<div class="max-w-7xl mx-auto">
+
+  <!-- HEADER -->
+
+  <div class="mb-8 text-center">
+
+    <img
+      src="1.jpeg"
+      class="w-40 h-40 object-contain mx-auto mb-5 rounded-full shadow-2xl border-4 border-orange-500">
+
+    <h1 class="text-6xl font-black bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+      MOCHI BURGERS
+    </h1>
+
+    <p class="text-zinc-400 mt-3 text-xl">
+      Sistema de Facturación
+    </p>
+
+  </div>
+
+  <!-- STATS PREMIUM -->
+
+  <div class="grid md:grid-cols-4 gap-5 mb-6">
+
+    <div class="card p-5">
+      <p class="text-zinc-400">Ventas Totales</p>
+
+      <h1
+        id="salesAmount"
+        class="text-4xl font-black text-green-400 mt-2">
+
+        C$0
+
+      </h1>
+    </div>
+
+    <div class="card p-5">
+      <p class="text-zinc-400">Facturas</p>
+
+      <h1
+        id="invoiceCount"
+        class="text-4xl font-black text-orange-400 mt-2">
+
+        0
+
+      </h1>
+    </div>
+
+    <div class="card p-5">
+      <p class="text-zinc-400">Productos Vendidos</p>
+
+      <h1
+        id="productsCount"
+        class="text-4xl font-black text-cyan-400 mt-2">
+
+        0
+
+      </h1>
+    </div>
+
+    <div class="card p-5">
+      <p class="text-zinc-400">Ganancias Hoy</p>
+
+      <h1
+        id="todaySales"
+        class="text-4xl font-black text-pink-400 mt-2">
+
+        C$0
+
+      </h1>
+    </div>
+
+  </div>
+
+  <!-- GRID -->
+
+  <div class="grid lg:grid-cols-3 gap-6">
+
+    <!-- INVENTARIO -->
+
+    <div class="lg:col-span-2 card p-6">
+
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+
+        <h2 class="text-3xl font-black text-orange-400">
+          Inventario
+        </h2>
+
+        <div class="flex gap-3 flex-wrap">
+
+          <button
+            onclick="openInventoryModal()"
+            class="btn bg-orange-500 hover:bg-orange-600 px-5 py-3 rounded-2xl font-bold">
+
+            + Ingrediente
+
+          </button>
+
+          <button
+            onclick="exportInventory()"
+            class="btn bg-cyan-500 hover:bg-cyan-600 px-5 py-3 rounded-2xl font-bold">
+
+            Exportar
+
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- BUSCADOR -->
+
+      <input
+        type="text"
+        id="searchInventory"
+        placeholder="Buscar ingrediente..."
+        class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl p-4 mb-6">
+
+      <div class="overflow-auto">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Ingrediente</th>
+              <th>Cantidad</th>
+              <th>Unidad</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="inventoryTable"></tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+    <!-- STATS -->
+
+    <div class="card p-6">
+
+      <h2 class="text-3xl font-black text-green-400 mb-6">
+        Estadísticas
+      </h2>
+
+      <canvas id="salesChart"></canvas>
+
+      <div class="mt-8 space-y-4">
+
+        <div class="bg-zinc-900 rounded-2xl p-4">
+          <p class="text-zinc-400">
+            Producto Más Vendido
+          </p>
+
+          <h1
+            id="topProduct"
+            class="text-2xl font-black text-yellow-400 mt-2">
+
+            Ninguno
+
+          </h1>
+        </div>
+
+        <div class="bg-zinc-900 rounded-2xl p-4">
+          <p class="text-zinc-400">
+            Última Venta
+          </p>
+
+          <h1
+            id="lastSale"
+            class="text-xl font-black text-cyan-400 mt-2">
+
+            ---
+          </h1>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- FACTURADOR -->
+
+  <div class="card p-6 mt-6">
+
+    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+
+      <h2 class="text-3xl font-black text-yellow-400">
+        Facturador
+      </h2>
+
+      <button
+        onclick="addProductRow()"
+        class="btn bg-green-500 hover:bg-green-600 px-5 py-3 rounded-2xl font-bold">
+
+        + Producto
+
+      </button>
+
+    </div>
+
+    <!-- DATOS -->
+
+    <div class="grid md:grid-cols-4 gap-4 mb-6">
+
+      <input
+        id="clientName"
+        type="text"
+        value="Christopher"
+        placeholder="Cliente"
+        class="bg-zinc-900 border border-zinc-700 rounded-2xl p-4">
+
+      <input
+        id="clientPhone"
+        type="text"
+        placeholder="Teléfono"
+        class="bg-zinc-900 border border-zinc-700 rounded-2xl p-4">
+
+      <input
+        id="invoiceDate"
+        type="date"
+        class="bg-zinc-900 border border-zinc-700 rounded-2xl p-4">
+
+      <select
+        id="paymentMethod"
+        class="bg-zinc-900 border border-zinc-700 rounded-2xl p-4">
+
+        <option>Efectivo</option>
+        <option>Transferencia</option>
+        <option>Tarjeta</option>
+
+      </select>
+
+    </div>
+
+    <!-- TABLA -->
+
+    <div class="overflow-auto">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Subtotal</th>
+            <th></th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="invoiceProducts"></tbody>
+
+      </table>
+
+    </div>
+
+    <!-- TOTAL -->
+
+    <div class="grid md:grid-cols-2 gap-6 mt-6">
+
+      <div class="bg-zinc-900 rounded-2xl p-6">
+
+        <p class="text-zinc-400 mb-3">
+          Dinero Recibido
+        </p>
+
+        <input
+          type="number"
+          id="cashReceived"
+          placeholder="C$0"
+          class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4">
+
+        <div class="mt-4 text-2xl font-black">
+
+          Vuelto:
+          <span id="changeAmount" class="text-cyan-400">
+            C$0
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="bg-zinc-900 rounded-2xl p-6 flex items-center justify-between">
+
+        <div>
+
+          <p class="text-zinc-400">
+            Total
+          </p>
+
+          <h1
+            id="invoiceTotal"
+            class="text-5xl font-black text-green-400 mt-2">
+
+            C$0
+
+          </h1>
+
+        </div>
+
+        <div class="text-6xl">
+          🍔
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- BOTONES -->
+
+    <div class="flex flex-wrap gap-4 mt-6">
+
+      <button
+        onclick="saveInvoice()"
+        class="btn bg-orange-500 hover:bg-orange-600 px-6 py-4 rounded-2xl font-black">
+
+        Guardar Factura
+
+      </button>
+
+      <button
+        onclick="downloadPDF()"
+        class="btn bg-red-500 hover:bg-red-600 px-6 py-4 rounded-2xl font-black">
+
+        Descargar PDF
+
+      </button>
+
+      <button
+        onclick="printTicket()"
+        class="btn bg-cyan-500 hover:bg-cyan-600 px-6 py-4 rounded-2xl font-black">
+
+        Imprimir Ticket
+
+      </button>
+
+      <button
+        onclick="sendWhatsApp()"
+        class="btn bg-green-600 hover:bg-green-700 px-6 py-4 rounded-2xl font-black">
+
+        WhatsApp
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- HISTORIAL -->
+
+  <div class="card p-6 mt-6">
+
+    <div class="flex justify-between items-center mb-6">
+
+      <h2 class="text-3xl font-black text-pink-400">
+        Historial de Facturas
+      </h2>
+
+      <button
+        onclick="clearInvoices()"
+        class="btn bg-red-500 hover:bg-red-600 px-5 py-3 rounded-2xl font-bold">
+
+        Borrar Todo
+
+      </button>
+
+    </div>
+
+    <div id="invoiceHistory" class="space-y-4"></div>
+
+  </div>
+
+  <!-- PRODUCTOS VENDIDOS -->
+
+  <div class="card p-6 mt-6">
+
+    <h2 class="text-3xl font-black text-cyan-400 mb-6">
+      Productos Vendidos
+    </h2>
+
+    <div id="soldProducts" class="space-y-4"></div>
+
+  </div>
+
+  <!-- VENTAS POR DIA -->
+
+  <div class="bg-zinc-900 rounded-3xl p-6 mt-10">
+
+    <h1 class="text-3xl font-black mb-6 text-orange-400">
+      Ventas por Día
+    </h1>
+
+    <div class="flex flex-col md:flex-row gap-4">
+
+      <input
+        type="date"
+        id="salesDate"
+        class="bg-zinc-800 border border-zinc-700 rounded-2xl p-4 w-full">
+
+      <button
+        onclick="filterSalesByDate()"
+        class="bg-orange-500 hover:bg-orange-600 px-6 py-4 rounded-2xl font-black">
+
+        Filtrar Ventas
+
+      </button>
+
+    </div>
+
+    <div
+      id="filteredSales"
+      class="mt-6 space-y-4">
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- MODAL INVENTARIO -->
+
+<div
+  id="inventoryModal"
+  class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-[999999]">
+
+  <div class="card p-6 w-full max-w-lg">
+
+    <h2 class="text-3xl font-black text-orange-400 mb-6">
+      Agregar Ingrediente
+    </h2>
+
+    <div class="space-y-4">
+
+      <input
+        id="ingredientName"
+        type="text"
+        placeholder="Ingrediente"
+        class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl p-4">
+
+      <input
+        id="ingredientQty"
+        type="number"
+        placeholder="Cantidad"
+        class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl p-4">
+
+      <select
+        id="ingredientUnit"
+        class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl p-4">
+
+        <option>Unidades</option>
+        <option>Kilos</option>
+        <option>Litros</option>
+
+      </select>
+
+    </div>
+
+    <div class="flex gap-4 mt-6">
+
+      <button
+        onclick="closeInventoryModal()"
+        class="flex-1 bg-zinc-700 py-3 rounded-2xl font-bold">
+
+        Cancelar
+
+      </button>
+
+      <button
+        onclick="addIngredient()"
+        class="flex-1 bg-green-500 py-3 rounded-2xl font-bold">
+
+        Guardar
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- NAVBAR MOBILE -->
+
+<nav
+id="bottomNav"
+class="fixed bottom-0 left-0 w-full z-[99999] opacity-0 translate-y-20 transition-all duration-700">
+
+  <div
+    class="absolute inset-0 bg-[#0b0b0b]/95 backdrop-blur-2xl border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,.45)]">
+  </div>
+
+  <div class="relative h-[90px] flex">
+
+    <!-- HOME -->
+
+    <a
+      href="index.html"
+      class="flex-1 flex flex-col items-center justify-center active:scale-95 transition-all">
+
+      <div
+        class="w-16 h-16 rounded-[24px] bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-[0_10px_30px_rgba(255,80,0,.35)]">
+
+        <svg xmlns="http://www.w3.org/2000/svg"
+          class="w-8 h-8 text-white"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M3 10.5L12 3l9 7.5M5 9.5V20h14V9.5"/>
+
+        </svg>
+
+      </div>
+
+      <span class="text-sm font-bold text-orange-400 mt-1">
+        Inicio
+      </span>
+
+    </a>
+
+    <!-- REGISTRADOR -->
+
+    <a
+      href="registrador.html"
+      class="flex-1 flex flex-col items-center justify-center active:scale-95 transition-all">
+
+      <div
+        class="w-16 h-16 rounded-[24px] bg-zinc-900 border border-zinc-700 flex items-center justify-center shadow-xl">
+
+        <svg xmlns="http://www.w3.org/2000/svg"
+          class="w-8 h-8 text-cyan-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 17v-6h13v6M9 5h13v6H9M2 5h4v4H2V5zm0 10h4v4H2v-4z"/>
+
+        </svg>
+
+      </div>
+
+      <span class="text-sm font-bold text-zinc-300 mt-1">
+        Registrador
+      </span>
+
+    </a>
+
+  </div>
+
+</nav>
+
+<script src="funciones.js"></script>
+
+</body>
+</html>

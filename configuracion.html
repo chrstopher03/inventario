@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configuración</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:var(--bg,#2b0b73);
+    color:white;
+    min-height:100vh;
+    display:flex;
+}
+
+/* SIDEBAR */
+.sidebar{
+    width:240px;
+    background:linear-gradient(180deg,#210457,#32007d);
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+.menu button{
+    width:100%;
+    padding:12px;
+    margin:6px 0;
+    border:none;
+    border-radius:12px;
+    background:transparent;
+    color:white;
+    text-align:left;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.menu button:hover{
+    background:linear-gradient(90deg,#9b50ff,#cb70ff);
+}
+
+/* MAIN */
+.main{
+    flex:1;
+    padding:25px;
+}
+
+.card{
+    background:white;
+    color:#2b0b73;
+    padding:20px;
+    border-radius:18px;
+    margin-bottom:20px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border-radius:10px;
+    border:1px solid #ddd;
+}
+
+button{
+    padding:12px 14px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+    margin-top:8px;
+}
+
+.btn{
+    background:linear-gradient(90deg,#7b2ff7,#00c6ff);
+    color:white;
+}
+
+.danger{
+    background:#ff4d4d;
+    color:white;
+}
+
+.warning{
+    background:#ffb300;
+    color:black;
+}
+
+/* LISTA PDF */
+.pdf-list{
+    margin-top:10px;
+}
+
+.pdf-item{
+    background:#f3f0ff;
+    padding:10px;
+    margin:6px 0;
+    border-radius:10px;
+    color:#333;
+    display:flex;
+    justify-content:space-between;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+    <div class="menu">
+        <button onclick="window.location.href='index.html'"><i class="fa fa-home"></i> Inicio</button>
+        <button onclick="window.location.href='inversion.html'"><i class="fa fa-coins"></i> Sistema</button>
+        <button style="background:linear-gradient(90deg,#9b50ff,#cb70ff);">
+            <i class="fa fa-gear"></i> Configuración
+        </button>
+    </div>
+
+    <p style="opacity:.6;font-size:12px;">Panel Admin</p>
+
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- CAMBIO DE COLOR -->
+    <div class="card">
+
+        <h2>🎨 Personalizar Fondo</h2>
+
+        <input type="color" id="colorPicker">
+
+        <button class="btn" onclick="cambiarColor()">
+            Guardar Color
+        </button>
+
+        <button class="warning" onclick="resetColor()">
+            Restaurar Color
+        </button>
+
+    </div>
+
+    <!-- PDFs -->
+    <div class="card">
+
+        <h2>📁 PDFs Generados</h2>
+
+        <div class="pdf-list" id="pdfList"></div>
+
+    </div>
+
+    <!-- LIMPIEZA -->
+    <div class="card">
+
+        <h2>🧹 Limpieza del Sistema</h2>
+
+        <button class="danger" onclick="borrarTodo()">
+            BORRAR TODO EL SISTEMA
+        </button>
+
+        <button class="warning" onclick="borrarNavegacion()">
+            BORRAR DATOS DE NAVEGACIÓN
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+/* =========================
+   CARGAR COLOR
+========================= */
+
+const savedColor = localStorage.getItem("bgColor");
+
+if(savedColor){
+    document.documentElement.style.setProperty("--bg", savedColor);
+}
+
+/* =========================
+   CAMBIAR COLOR
+========================= */
+
+function cambiarColor(){
+
+    let color = document.getElementById("colorPicker").value;
+
+    document.documentElement.style.setProperty("--bg", color);
+
+    localStorage.setItem("bgColor", color);
+}
+
+function resetColor(){
+    localStorage.removeItem("bgColor");
+    document.documentElement.style.setProperty("--bg", "#2b0b73");
+}
+
+/* =========================
+   BORRAR TODO
+========================= */
+
+function borrarTodo(){
+
+    if(!confirm("Esto borrará TODAS las ventas y datos. ¿Continuar?")) return;
+
+    localStorage.removeItem("dailySales");
+    localStorage.removeItem("salesHistory");
+    localStorage.removeItem("entregasNegocio");
+    localStorage.removeItem("gastosNegocio");
+    localStorage.removeItem("pdfs");
+
+    alert("Sistema limpiado completamente");
+    location.reload();
+}
+
+/* =========================
+   BORRAR NAVEGACIÓN
+========================= */
+
+function borrarNavegacion(){
+
+    if(!confirm("Se borrarán datos temporales del navegador")) return;
+
+    localStorage.clear();
+    sessionStorage.clear();
+
+    alert("Datos de navegación borrados");
+}
+
+/* =========================
+   PDF SYSTEM PRO
+========================= */
+
+function cargarPDFs(){
+
+    let pdfs = JSON.parse(localStorage.getItem("pdfs")) || [];
+
+    const cont = document.getElementById("pdfList");
+    cont.innerHTML = "";
+
+    if(pdfs.length === 0){
+        cont.innerHTML = "<p style='opacity:.6'>No hay PDFs generados</p>";
+        return;
+    }
+
+    pdfs.forEach((p, index)=>{
+
+        cont.innerHTML += `
+        <div class="pdf-item">
+
+            <div>
+                <strong>📄 ${p.name}</strong><br>
+                <small>${p.date}</small>
+            </div>
+
+            <div style="display:flex;gap:8px;align-items:center;">
+
+                <button onclick="descargarPDF(${index})"
+                style="padding:6px 10px;border:none;border-radius:8px;background:#7b2ff7;color:white;cursor:pointer;">
+                    Descargar
+                </button>
+
+                <button onclick="eliminarPDF(${index})"
+                style="padding:6px 10px;border:none;border-radius:8px;background:#ff4d4d;color:white;cursor:pointer;">
+                    ✖
+                </button>
+
+            </div>
+
+        </div>`;
+    });
+}
+
+/* =========================
+   GUARDAR PDF (DESDE HISTORIAL)
+========================= */
+
+function guardarPDF(name, data){
+
+    let pdfs = JSON.parse(localStorage.getItem("pdfs")) || [];
+
+    pdfs.unshift({
+        id: Date.now(),
+        name,
+        date: new Date().toLocaleString("es-NI"),
+        data: data || null   // opcional si quieres guardar info
+    });
+
+    localStorage.setItem("pdfs", JSON.stringify(pdfs));
+
+    cargarPDFs();
+}
+
+/* =========================
+   DESCARGAR PDF (SIMULADO)
+   -> si quieres real, se conecta a historial
+========================= */
+
+function descargarPDF(index){
+
+    let pdfs = JSON.parse(localStorage.getItem("pdfs")) || [];
+
+    let pdf = pdfs[index];
+
+    if(!pdf){
+        alert("PDF no encontrado");
+        return;
+    }
+
+    alert("Aquí puedes reconectar con tu función jsPDF para regenerar:\n" + pdf.name);
+}
+
+/* =========================
+   ELIMINAR PDF
+========================= */
+
+function eliminarPDF(index){
+
+    let pdfs = JSON.parse(localStorage.getItem("pdfs")) || [];
+
+    if(!confirm("¿Eliminar este PDF?")) return;
+
+    pdfs.splice(index,1);
+
+    localStorage.setItem("pdfs", JSON.stringify(pdfs));
+
+    cargarPDFs();
+}
+
+/* =========================
+   INIT
+========================= */
+
+cargarPDFs();
+
+</script>
+
+</body>
+</html>
