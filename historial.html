@@ -2376,31 +2376,89 @@ success(
 
 }
 
+/* =========================
+   CARGAR LOGO
+========================= */
 
-async function factura(i){
+function cargarLogo(url){
 
-const {jsPDF}=window.jspdf;
+    return new Promise(resolve=>{
 
+        let img=new Image();
 
-let history=getHistory();
+        img.onload=()=>resolve(img);
 
-let venta=history[i];
+        img.onerror=()=>resolve(null);
 
+        img.src=url;
 
-if(!venta){
+    });
 
-error(
-"Factura no encontrada",
-"No existe esta venta."
-);
+}
 
-return;
+/* =========================
+   CARGAR LOGO
+========================= */
+
+function cargarLogo(url){
+
+    return new Promise(resolve=>{
+
+        let img=new Image();
+
+        img.crossOrigin="anonymous";
+
+        img.onload=()=>resolve(img);
+
+        img.onerror=()=>resolve(null);
+
+        img.src=url;
+
+    });
 
 }
 
 
 
-/* DATOS CLIENTE */
+
+
+/* =========================
+   FACTURA REAL PROFESIONAL
+========================= */
+
+async function factura(i){
+
+
+const {jsPDF}=window.jspdf;
+
+
+
+let history=getHistory();
+
+
+let venta=history[i];
+
+
+
+if(!venta){
+
+    error(
+        "Factura no encontrada",
+        "No existe esta venta."
+    );
+
+    return;
+
+}
+
+
+
+
+
+/* =========================
+   DATOS CLIENTE
+========================= */
+
 
 const {value:nombre}=await Swal.fire({
 
@@ -2414,6 +2472,8 @@ showCancelButton:true,
 
 confirmButtonText:"Continuar",
 
+confirmButtonColor:"#6c3cff",
+
 background:"#1e1e2f",
 
 color:"#fff"
@@ -2422,6 +2482,7 @@ color:"#fff"
 
 
 if(!nombre)return;
+
 
 
 
@@ -2438,6 +2499,8 @@ showCancelButton:true,
 
 confirmButtonText:"Continuar",
 
+confirmButtonColor:"#6c3cff",
+
 background:"#1e1e2f",
 
 color:"#fff"
@@ -2446,6 +2509,7 @@ color:"#fff"
 
 
 if(!telefono)return;
+
 
 
 
@@ -2460,7 +2524,9 @@ inputPlaceholder:"Ej: Estelí, Nicaragua",
 
 showCancelButton:true,
 
-confirmButtonText:"Generar",
+confirmButtonText:"Generar factura",
+
+confirmButtonColor:"#6c3cff",
 
 background:"#1e1e2f",
 
@@ -2473,51 +2539,123 @@ if(!direccion)return;
 
 
 
+
+
+
+/* =========================
+   CREAR PDF
+========================= */
+
+
 let doc=new jsPDF();
+
+
+
+let logo=await cargarLogo("logo.jpeg");
 
 
 
 let centro=105;
 
-let y=25;
+
+let y=18;
 
 
 
-/* =====================
-   ENCABEZADO
-===================== */
 
 
-doc.setFont("helvetica","bold");
+/* =========================
+   LOGO
+========================= */
+
+
+if(logo){
+
+doc.addImage(
+
+logo,
+
+"JPEG",
+
+92,
+
+y,
+
+26,
+
+26
+
+);
+
+}
+
+
+
+y+=35;
+
+
+
+
+
+
+/* =========================
+   NEGOCIO
+========================= */
+
+
+doc.setFont(
+"helvetica",
+"bold"
+);
+
 
 doc.setFontSize(22);
 
 
+
 doc.text(
+
 "BURGUER HOUSE",
+
 centro,
+
 y,
+
 {
 align:"center"
 }
+
 );
 
 
-y+=8;
+
+y+=7;
 
 
-doc.setFont("helvetica","normal");
+
+doc.setFont(
+"helvetica",
+"normal"
+);
+
+
 
 doc.setFontSize(10);
 
 
+
 doc.text(
-"Hamburguesas • Bebidas • Calidad",
+
+"Hamburguesas • Bebidas • Calidad y sabor",
+
 centro,
+
 y,
+
 {
 align:"center"
 }
+
 );
 
 
@@ -2526,65 +2664,112 @@ y+=15;
 
 
 
+
 doc.line(
-25,
+
+20,
+
 y,
-185,
+
+190,
+
 y
+
 );
 
 
 
-y+=12;
+y+=15;
 
 
 
 
-/* =====================
-   DATOS
-===================== */
+
+
+
+/* =========================
+   INFORMACION FACTURA
+========================= */
 
 
 doc.setFontSize(11);
 
-doc.setFont("helvetica","normal");
 
-
-doc.text(
-"Factura #: "+(venta.factura || venta.id || i+1),
-25,
-y
-);
-
-
-y+=7;
-
-
-doc.text(
-"Fecha: "+(venta.date || venta.fecha),
-25,
-y
+doc.setFont(
+"helvetica",
+"normal"
 );
 
 
 
-y+=7;
+doc.text(
+
+"Factura #: "+
+
+(
+venta.factura ||
+venta.id ||
+i+1
+),
+
+20,
+
+y
+
+);
+
 
 
 doc.text(
+
+"Fecha: "+
+
+(
+venta.date ||
+venta.fecha ||
+""
+),
+
+190,
+
+y,
+
+{
+align:"right"
+}
+
+);
+
+
+
+y+=9;
+
+
+
+doc.text(
+
 "Cliente: "+nombre,
-25,
+
+20,
+
 y
+
 );
+
 
 
 y+=7;
 
 
+
 doc.text(
+
 "Teléfono: "+telefono,
-25,
+
+20,
+
 y
+
 );
 
 
@@ -2592,24 +2777,35 @@ y
 y+=7;
 
 
+
 doc.text(
+
 "Dirección: "+direccion,
-25,
+
+20,
+
 y
+
 );
 
 
 
+y+=15;
 
-y+=12;
+
 
 
 
 doc.line(
-25,
+
+20,
+
 y,
-185,
+
+190,
+
 y
+
 );
 
 
@@ -2619,17 +2815,46 @@ y+=12;
 
 
 
-/* =====================
+
+
+/* =========================
    PRODUCTOS
-===================== */
+========================= */
 
 
-doc.setFont("helvetica","bold");
+doc.setFont(
+"helvetica",
+"bold"
+);
 
 
 doc.text(
-"Producto                 Cant.     Precio",
-25,
+"Producto",
+20,
+y
+);
+
+
+
+doc.text(
+"Cant.",
+110,
+y
+);
+
+
+
+doc.text(
+"Precio",
+135,
+y
+);
+
+
+
+doc.text(
+"Subtotal",
+165,
 y
 );
 
@@ -2638,11 +2863,10 @@ y
 y+=8;
 
 
-
 doc.line(
-25,
+20,
 y,
-185,
+190,
 y
 );
 
@@ -2651,13 +2875,20 @@ y
 y+=10;
 
 
-doc.setFont("helvetica","normal");
+
+doc.setFont(
+"helvetica",
+"normal"
+);
 
 
 
 let productos =
+
 venta.products ||
+
 venta.productos ||
+
 [];
 
 
@@ -2667,63 +2898,96 @@ venta.productos ||
 productos.forEach(p=>{
 
 
-let nombreProducto=
+
+let producto=
+
 p.name ||
+
 p.producto ||
+
 "Producto";
 
 
 
 let cantidad=
+
 Number(
+
 p.qty ||
+
 p.cantidad ||
+
 1
+
 );
 
 
 
 let precio=
+
 Number(
+
 p.price ||
+
 p.precio ||
+
 0
+
 );
 
 
 
-let subtotal=cantidad*precio;
+let subtotal=
+
+cantidad * precio;
+
 
 
 
 doc.text(
-nombreProducto.substring(0,25),
-25,
+
+producto.substring(0,28),
+
+20,
+
 y
+
 );
 
 
 
 doc.text(
+
 cantidad.toString(),
-120,
+
+115,
+
 y
+
 );
 
 
 
 doc.text(
+
 "C$ "+precio.toFixed(2),
-145,
+
+135,
+
 y
+
 );
 
 
 
 doc.text(
+
 "C$ "+subtotal.toFixed(2),
-175,
+
+165,
+
 y
+
 );
 
 
@@ -2738,19 +3002,26 @@ y+=10;
 
 
 
-/* =====================
+
+/* =========================
    TOTAL
-===================== */
+========================= */
 
 
 y+=5;
 
 
+
 doc.line(
-25,
+
+20,
+
 y,
-185,
+
+190,
+
 y
+
 );
 
 
@@ -2759,43 +3030,72 @@ y+=15;
 
 
 
-doc.setFont("helvetica","bold");
+doc.setFont(
+"helvetica",
+"bold"
+);
 
 
-doc.setFontSize(16);
+
+doc.setFontSize(18);
 
 
 
 doc.text(
+
 "TOTAL: C$ "+
-Number(venta.total).toFixed(2),
+
+Number(venta.total)
+
+.toFixed(2),
+
 centro,
+
 y,
+
 {
 align:"center"
 }
+
 );
 
 
 
 
-y+=20;
+
+
+/* =========================
+   PIE FACTURA
+========================= */
+
+
+y+=25;
 
 
 
-doc.setFont("helvetica","normal");
+doc.setFont(
+"helvetica",
+"normal"
+);
+
+
 
 doc.setFontSize(11);
 
 
 
 doc.text(
+
 "Gracias por su compra ",
+
 centro,
+
 y,
+
 {
 align:"center"
 }
+
 );
 
 
@@ -2809,39 +3109,63 @@ doc.setFontSize(9);
 
 
 doc.text(
+
 "BURGUER HOUSE",
+
 centro,
+
 y,
+
 {
 align:"center"
 }
+
 );
 
 
 
 doc.text(
+
 "Calidad y sabor en cada mordida",
+
 centro,
+
 y+6,
+
 {
 align:"center"
 }
+
 );
 
 
 
 
 
+
+/* =========================
+   DESCARGAR
+========================= */
+
+
 let numero=
+
 venta.factura ||
+
 venta.id ||
+
 i+1;
 
 
 
+
 doc.save(
+
 "Factura-Burguer-House-"+numero+".pdf"
+
 );
+
+
 
 
 
